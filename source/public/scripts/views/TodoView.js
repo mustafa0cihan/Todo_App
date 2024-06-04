@@ -1,9 +1,58 @@
 class TodoView {
     constructor() {
-        this.app = document.body;
+        this.app = document.getElementById('app');
     }
 
-    createTodoForm() {
+    createMainPage() {
+        this.app.innerHTML = '';
+
+        const createTodoButton = document.createElement('button');
+        createTodoButton.textContent = 'Create New Todo';
+        createTodoButton.id = 'create-todo-button';
+
+        const toggleStyleButton = document.createElement('button');
+        toggleStyleButton.textContent = 'Toggle Style';
+        toggleStyleButton.id = 'toggle-style-button';
+
+        const sortFilterSection = document.createElement('div');
+        sortFilterSection.id = 'sort-filter-section';
+
+        const byNameButton = document.createElement('button');
+        byNameButton.textContent = 'By Name';
+        byNameButton.id = 'by-name-button';
+
+        const byDueDateButton = document.createElement('button');
+        byDueDateButton.textContent = 'By Due Date';
+        byDueDateButton.id = 'by-due-date-button';
+
+        const byCreationDateButton = document.createElement('button');
+        byCreationDateButton.textContent = 'By Creation Date';
+        byCreationDateButton.id = 'by-creation-date-button';
+
+        const importanceButton = document.createElement('button');
+        importanceButton.textContent = 'Importance';
+        importanceButton.id = 'importance-button';
+
+        const filterCompletedButton = document.createElement('button');
+        filterCompletedButton.textContent = 'Filter Completed';
+        filterCompletedButton.id = 'filter-completed-button';
+
+        sortFilterSection.appendChild(byNameButton);
+        sortFilterSection.appendChild(byDueDateButton);
+        sortFilterSection.appendChild(byCreationDateButton);
+        sortFilterSection.appendChild(importanceButton);
+        sortFilterSection.appendChild(filterCompletedButton);
+
+        const todoListSection = document.createElement('div');
+        todoListSection.id = 'todo-list-section';
+
+        this.app.appendChild(createTodoButton);
+        this.app.appendChild(toggleStyleButton);
+        this.app.appendChild(sortFilterSection);
+        this.app.appendChild(todoListSection);
+    }
+
+    showTodoForm() {
         const form = document.createElement('form');
         form.id = 'todo-form';
 
@@ -52,14 +101,46 @@ class TodoView {
         form.appendChild(descriptionInput);
         form.appendChild(createButton);
 
+        this.app.innerHTML = '';
         this.app.appendChild(form);
+
+        form.addEventListener('submit', (event) => {
+            event.preventDefault();
+            this.handleFormSubmit();
+        });
+    }
+
+    handleFormSubmit() {
+        const title = document.querySelector('input[type="text"]').value;
+        const importance = document.querySelector('input[type="number"]').value;
+        const dueDate = document.querySelector('input[type="date"]').value;
+        const description = document.querySelector('textarea').value;
+        const completed = document.querySelector('input[type="checkbox"]').checked;
+
+        const newTodo = {
+            title,
+            importance,
+            dueDate,
+            description,
+            completed
+        };
+
+        const event = new CustomEvent('todoCreated', { detail: newTodo });
+        document.dispatchEvent(event);
     }
 
     createTodoList(todos) {
-        // Önceki listeyi temizleyelim
-        const existingUl = document.querySelector('ul');
-        if (existingUl) {
-            existingUl.remove();
+        const todoListSection = document.getElementById('todo-list-section');
+        if (!todoListSection) {
+            console.error('Todo list section not found');
+            return;
+        }
+
+        todoListSection.innerHTML = '';
+
+        if (todos.length === 0) {
+            todoListSection.textContent = 'No Todos Found';
+            return;
         }
 
         const ul = document.createElement('ul');
@@ -68,9 +149,8 @@ class TodoView {
             li.textContent = `${todo.title} - ${todo.description} - ${todo.importance} - ${todo.dueDate} - ${todo.completed ? 'Completed' : 'Not Completed'}`;
             ul.appendChild(li);
         });
-        this.app.appendChild(ul);
+        todoListSection.appendChild(ul);
     }
-
 }
 
 export default TodoView;
