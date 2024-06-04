@@ -2,10 +2,10 @@
   "name": "cas-fee-projekt-1-starter-template",
   "version": "1.0.0",
   "description": "Testat template",
-  "main": "public/scripts/main.js",
+  "main": "source/public/scripts/index.js",
   "type": "module",
   "scripts": {
-    "start": "node main.js",
+    "start": "node index.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "stylelint": "stylelint \"**/*.css\"",    
     "eslint": "eslint \"**/*.js\"",
