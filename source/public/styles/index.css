@@ -9,25 +9,30 @@ body {
     margin: 20px;
 }
 
-form {
-    display: flex;
-    flex-direction: column;
-    margin-bottom: 20px;
-}
-
-form label {
-    margin-top: 10px;
-}
-
-form input, form textarea, form button {
-    margin-top: 5px;
-}
-
 button {
     background-color: blue;
     color: white;
     border: none;
     padding: 10px 20px;
     cursor: pointer;
+    margin: 5px;
+}
+
+#sort-filter-section {
+    display: flex;
+    gap: 10px;
     margin-top: 10px;
+    margin-bottom: 20px;
+}
+
+#todo-list-section ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+#todo-list-section li {
+    background-color: #f4f4f4;
+    margin-bottom: 10px;
+    padding: 10px;
+    border-radius: 5px;
 }
