@@ -9,6 +9,14 @@ class TodoController {
         document.addEventListener('todoCreated', (event) => {
             this.addNewTodo(event.detail);
         });
+
+        document.addEventListener('editTodo', (event) => {
+            this.editTodo(event.detail.todo, event.detail.index);
+        });
+
+        document.addEventListener('updateTodo', (event) => {
+            this.updateTodo(event.detail.updatedTodo, event.detail.index);
+        });
     }
 
     init() {
@@ -17,15 +25,8 @@ class TodoController {
 
         document.getElementById('create-todo-button').addEventListener('click', () => {
             this.todoView.showTodoForm();
-            this.initFormSubmitListener();
         });
-    }
 
-    initFormSubmitListener() {
-        document.getElementById('todo-form').addEventListener('submit', (event) => {
-            event.preventDefault();
-            this.addNewTodoFromForm();
-        });
     }
 
     addNewTodoFromForm() {
@@ -51,7 +52,19 @@ class TodoController {
         this.todoView.createMainPage();
         this.todoView.createTodoList(this.todoModel.getTodos());
 
-        this.init(); 
+        this.init();
+    }
+
+    editTodo(todo, index) {
+        const editableTodo = { ...todo, index };
+        this.todoView.showEditForm(editableTodo);
+    }
+
+    updateTodo(updatedTodo, index) {
+        this.todoModel.todos[index] = updatedTodo;
+        this.todoView.createMainPage();
+        this.todoView.createTodoList(this.todoModel.getTodos());
+        this.init();
     }
 }
 
