@@ -137,19 +137,95 @@ class TodoView {
         }
 
         todoListSection.innerHTML = '';
-
         if (todos.length === 0) {
             todoListSection.textContent = 'No Todos Found';
             return;
         }
 
         const ul = document.createElement('ul');
-        todos.forEach(todo => {
+        todos.forEach((todo, index) => {
             const li = document.createElement('li');
             li.textContent = `${todo.title} - ${todo.description} - ${todo.importance} - ${todo.dueDate} - ${todo.completed ? 'Completed' : 'Not Completed'}`;
+
+            const editButton = document.createElement('button');
+            editButton.textContent = 'Edit';
+            editButton.addEventListener('click', () => {
+                const event = new CustomEvent('editTodo', { detail: { todo, index } });
+                document.dispatchEvent(event);
+            });
+
+            li.appendChild(editButton);
             ul.appendChild(li);
         });
         todoListSection.appendChild(ul);
+    }
+
+    showEditForm(todo) {
+        const form = document.createElement('form');
+        form.id = 'todo-form';
+
+        const titleLabel = document.createElement('label');
+        titleLabel.textContent = 'Title:';
+        const titleInput = document.createElement('input');
+        titleInput.type = 'text';
+        titleInput.value = todo.title;
+
+        const importanceLabel = document.createElement('label');
+        importanceLabel.textContent = 'Importance:';
+        const importanceInput = document.createElement('input');
+        importanceInput.type = 'number';
+        importanceInput.min = 1;
+        importanceInput.max = 5;
+        importanceInput.value = todo.importance;
+
+        const dueDateLabel = document.createElement('label');
+        dueDateLabel.textContent = 'Due Date:';
+        const dueDateInput = document.createElement('input');
+        dueDateInput.type = 'date';
+        dueDateInput.value = todo.dueDate;
+
+        const completedLabel = document.createElement('label');
+        completedLabel.textContent = 'Completed:';
+        const completedInput = document.createElement('input');
+        completedInput.type = 'checkbox';
+        completedInput.checked = todo.completed;
+
+        const descriptionLabel = document.createElement('label');
+        descriptionLabel.textContent = 'Description:';
+        const descriptionInput = document.createElement('textarea');
+        descriptionInput.value = todo.description;
+
+        const updateButton = document.createElement('button');
+        updateButton.type = 'submit';
+        updateButton.textContent = 'Update';
+
+        form.appendChild(titleLabel);
+        form.appendChild(titleInput);
+        form.appendChild(importanceLabel);
+        form.appendChild(importanceInput);
+        form.appendChild(dueDateLabel);
+        form.appendChild(dueDateInput);
+        form.appendChild(completedLabel);
+        form.appendChild(completedInput);
+        form.appendChild(descriptionLabel);
+        form.appendChild(descriptionInput);
+        form.appendChild(updateButton);
+
+        this.app.innerHTML = ''; // Clear the main page content
+        this.app.appendChild(form);
+
+        form.addEventListener('submit', (event) => {
+            event.preventDefault();
+            const updatedTodo = {
+                title: titleInput.value,
+                importance: importanceInput.value,
+                dueDate: dueDateInput.value,
+                description: descriptionInput.value,
+                completed: completedInput.checked
+            };
+            const updateEvent = new CustomEvent('updateTodo', { detail: { updatedTodo, index: todo.index } });
+            document.dispatchEvent(updateEvent);
+        });
     }
 }
 
