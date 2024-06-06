@@ -4,107 +4,44 @@ class TodoView {
     }
 
     createMainPage() {
-        this.app.innerHTML = '';
+        this.app.innerHTML = `
+            <button id="create-todo-button">Create New Todo</button>
+            <button id="toggle-style-button">Toggle Style</button>
+            <div id="sort-filter-section">
+                <button id="by-name-button">By Name</button>
+                <button id="by-due-date-button">By Due Date</button>
+                <button id="by-creation-date-button">By Creation Date</button>
+                <button id="importance-button">Importance</button>
+                <button id="filter-completed-button">Filter Completed</button>
+            </div>
+            <div id="todo-list-section"></div>
+        `;
 
-        const createTodoButton = document.createElement('button');
-        createTodoButton.textContent = 'Create New Todo';
-        createTodoButton.id = 'create-todo-button';
-
-        const toggleStyleButton = document.createElement('button');
-        toggleStyleButton.textContent = 'Toggle Style';
-        toggleStyleButton.id = 'toggle-style-button';
-
-        const sortFilterSection = document.createElement('div');
-        sortFilterSection.id = 'sort-filter-section';
-
-        const byNameButton = document.createElement('button');
-        byNameButton.textContent = 'By Name';
-        byNameButton.id = 'by-name-button';
-
-        const byDueDateButton = document.createElement('button');
-        byDueDateButton.textContent = 'By Due Date';
-        byDueDateButton.id = 'by-due-date-button';
-
-        const byCreationDateButton = document.createElement('button');
-        byCreationDateButton.textContent = 'By Creation Date';
-        byCreationDateButton.id = 'by-creation-date-button';
-
-        const importanceButton = document.createElement('button');
-        importanceButton.textContent = 'Importance';
-        importanceButton.id = 'importance-button';
-
-        const filterCompletedButton = document.createElement('button');
-        filterCompletedButton.textContent = 'Filter Completed';
-        filterCompletedButton.id = 'filter-completed-button';
-
-        sortFilterSection.appendChild(byNameButton);
-        sortFilterSection.appendChild(byDueDateButton);
-        sortFilterSection.appendChild(byCreationDateButton);
-        sortFilterSection.appendChild(importanceButton);
-        sortFilterSection.appendChild(filterCompletedButton);
-
-        const todoListSection = document.createElement('div');
-        todoListSection.id = 'todo-list-section';
-
-        this.app.appendChild(createTodoButton);
-        this.app.appendChild(toggleStyleButton);
-        this.app.appendChild(sortFilterSection);
-        this.app.appendChild(todoListSection);
+        this.app.addEventListener('click', (event) => {
+            if (event.target.id === 'create-todo-button') {
+                this.showTodoForm();
+            }
+        });
     }
 
     showTodoForm() {
-        const form = document.createElement('form');
-        form.id = 'todo-form';
+        this.app.innerHTML = `
+            <form id="todo-form">
+                <label>Title:</label>
+                <input type="text" placeholder="Example">
+                <label>Importance:</label>
+                <input type="number" min="1" max="5" placeholder="5">
+                <label>Due Date:</label>
+                <input type="date">
+                <label>Completed:</label>
+                <input type="checkbox">
+                <label>Description:</label>
+                <textarea placeholder="Example Todo"></textarea>
+                <button type="submit">Create</button>
+            </form>
+        `;
 
-        const titleLabel = document.createElement('label');
-        titleLabel.textContent = 'Title:';
-        const titleInput = document.createElement('input');
-        titleInput.type = 'text';
-        titleInput.placeholder = 'Example';
-
-        const importanceLabel = document.createElement('label');
-        importanceLabel.textContent = 'Importance:';
-        const importanceInput = document.createElement('input');
-        importanceInput.type = 'number';
-        importanceInput.min = 1;
-        importanceInput.max = 5;
-        importanceInput.placeholder = '5';
-
-        const dueDateLabel = document.createElement('label');
-        dueDateLabel.textContent = 'Due Date:';
-        const dueDateInput = document.createElement('input');
-        dueDateInput.type = 'date';
-
-        const completedLabel = document.createElement('label');
-        completedLabel.textContent = 'Completed:';
-        const completedInput = document.createElement('input');
-        completedInput.type = 'checkbox';
-
-        const descriptionLabel = document.createElement('label');
-        descriptionLabel.textContent = 'Description:';
-        const descriptionInput = document.createElement('textarea');
-        descriptionInput.placeholder = 'Example Todo';
-
-        const createButton = document.createElement('button');
-        createButton.type = 'submit';
-        createButton.textContent = 'Create';
-
-        form.appendChild(titleLabel);
-        form.appendChild(titleInput);
-        form.appendChild(importanceLabel);
-        form.appendChild(importanceInput);
-        form.appendChild(dueDateLabel);
-        form.appendChild(dueDateInput);
-        form.appendChild(completedLabel);
-        form.appendChild(completedInput);
-        form.appendChild(descriptionLabel);
-        form.appendChild(descriptionInput);
-        form.appendChild(createButton);
-
-        this.app.innerHTML = '';
-        this.app.appendChild(form);
-
-        form.addEventListener('submit', (event) => {
+        document.getElementById('todo-form').addEventListener('submit', (event) => {
             event.preventDefault();
             this.handleFormSubmit();
         });
@@ -145,83 +82,49 @@ class TodoView {
         const ul = document.createElement('ul');
         todos.forEach((todo, index) => {
             const li = document.createElement('li');
-            li.textContent = `${todo.title} - ${todo.description} - ${todo.importance} - ${todo.dueDate} - ${todo.completed ? 'Completed' : 'Not Completed'}`;
+            li.innerHTML = `
+                ${todo.title} - ${todo.description} - ${todo.importance} - ${todo.dueDate} - ${todo.completed ? 'Completed' : 'Not Completed'}
+                <button class="edit-button" data-index="${index}">Edit</button>
+            `;
 
-            const editButton = document.createElement('button');
-            editButton.textContent = 'Edit';
-            editButton.addEventListener('click', () => {
-                const event = new CustomEvent('editTodo', { detail: { todo, index } });
-                document.dispatchEvent(event);
-            });
-
-            li.appendChild(editButton);
             ul.appendChild(li);
         });
         todoListSection.appendChild(ul);
+
+        todoListSection.addEventListener('click', (event) => {
+            if (event.target.classList.contains('edit-button')) {
+                const index = event.target.getAttribute('data-index');
+                const eventDetail = new CustomEvent('editTodo', { detail: { todo: todos[index], index: parseInt(index, 10) } });
+                document.dispatchEvent(eventDetail);
+            }
+        });
     }
 
     showEditForm(todo) {
-        const form = document.createElement('form');
-        form.id = 'todo-form';
+        this.app.innerHTML = `
+            <form id="todo-form">
+                <label>Title:</label>
+                <input type="text" value="${todo.title}">
+                <label>Importance:</label>
+                <input type="number" min="1" max="5" value="${todo.importance}">
+                <label>Due Date:</label>
+                <input type="date" value="${todo.dueDate}">
+                <label>Completed:</label>
+                <input type="checkbox" ${todo.completed ? 'checked' : ''}>
+                <label>Description:</label>
+                <textarea>${todo.description}</textarea>
+                <button type="submit">Update</button>
+            </form>
+        `;
 
-        const titleLabel = document.createElement('label');
-        titleLabel.textContent = 'Title:';
-        const titleInput = document.createElement('input');
-        titleInput.type = 'text';
-        titleInput.value = todo.title;
-
-        const importanceLabel = document.createElement('label');
-        importanceLabel.textContent = 'Importance:';
-        const importanceInput = document.createElement('input');
-        importanceInput.type = 'number';
-        importanceInput.min = 1;
-        importanceInput.max = 5;
-        importanceInput.value = todo.importance;
-
-        const dueDateLabel = document.createElement('label');
-        dueDateLabel.textContent = 'Due Date:';
-        const dueDateInput = document.createElement('input');
-        dueDateInput.type = 'date';
-        dueDateInput.value = todo.dueDate;
-
-        const completedLabel = document.createElement('label');
-        completedLabel.textContent = 'Completed:';
-        const completedInput = document.createElement('input');
-        completedInput.type = 'checkbox';
-        completedInput.checked = todo.completed;
-
-        const descriptionLabel = document.createElement('label');
-        descriptionLabel.textContent = 'Description:';
-        const descriptionInput = document.createElement('textarea');
-        descriptionInput.value = todo.description;
-
-        const updateButton = document.createElement('button');
-        updateButton.type = 'submit';
-        updateButton.textContent = 'Update';
-
-        form.appendChild(titleLabel);
-        form.appendChild(titleInput);
-        form.appendChild(importanceLabel);
-        form.appendChild(importanceInput);
-        form.appendChild(dueDateLabel);
-        form.appendChild(dueDateInput);
-        form.appendChild(completedLabel);
-        form.appendChild(completedInput);
-        form.appendChild(descriptionLabel);
-        form.appendChild(descriptionInput);
-        form.appendChild(updateButton);
-
-        this.app.innerHTML = ''; // Clear the main page content
-        this.app.appendChild(form);
-
-        form.addEventListener('submit', (event) => {
+        document.getElementById('todo-form').addEventListener('submit', (event) => {
             event.preventDefault();
             const updatedTodo = {
-                title: titleInput.value,
-                importance: importanceInput.value,
-                dueDate: dueDateInput.value,
-                description: descriptionInput.value,
-                completed: completedInput.checked
+                title: document.querySelector('input[type="text"]').value,
+                importance: document.querySelector('input[type="number"]').value,
+                dueDate: document.querySelector('input[type="date"]').value,
+                description: document.querySelector('textarea').value,
+                completed: document.querySelector('input[type="checkbox"]').checked
             };
             const updateEvent = new CustomEvent('updateTodo', { detail: { updatedTodo, index: todo.index } });
             document.dispatchEvent(updateEvent);
