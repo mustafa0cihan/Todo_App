@@ -22,37 +22,14 @@ class TodoController {
     init() {
         this.todoView.createMainPage();
         this.todoView.createTodoList(this.todoModel.getTodos());
-
-        document.getElementById('create-todo-button').addEventListener('click', () => {
-            this.todoView.showTodoForm();
-        });
-
-    }
-
-    addNewTodoFromForm() {
-        const title = document.querySelector('input[type="text"]').value;
-        const importance = document.querySelector('input[type="number"]').value;
-        const dueDate = document.querySelector('input[type="date"]').value;
-        const description = document.querySelector('textarea').value;
-        const completed = document.querySelector('input[type="checkbox"]').checked;
-
-        const newTodo = {
-            title,
-            importance,
-            dueDate,
-            description,
-            completed
-        };
-
-        this.addNewTodo(newTodo);
     }
 
     addNewTodo(newTodo) {
         this.todoModel.addTodo(newTodo);
-        this.todoView.createMainPage();
+        this.todoView.createMainPage(); 
         this.todoView.createTodoList(this.todoModel.getTodos());
 
-        this.init();
+        this.init(); 
     }
 
     editTodo(todo, index) {
