@@ -21,6 +21,8 @@ class TodoView {
             if (event.target.id === 'create-todo-button') {
                 const createEvent = new CustomEvent('showCreateTodoForm');
                 document.dispatchEvent(createEvent);
+            } else if (event.target.id === 'toggle-style-button') {
+                document.body.classList.toggle('dark-mode');
             }
         });
     }

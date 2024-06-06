@@ -7,6 +7,7 @@ body {
     background-color: white;
     color: black;
     margin: 20px;
+    transition: background-color 0.3s, color 0.3s;
 }
 
 button {
@@ -35,4 +36,18 @@ button {
     margin-bottom: 10px;
     padding: 10px;
     border-radius: 5px;
+    color: black;
+}
+
+body.dark-mode {
+    background-color: black;
+    color: white;
+}
+
+body.dark-mode button {
+    background-color: darkblue;
+}
+
+body.dark-mode #todo-list-section li {
+    color: black; 
 }
