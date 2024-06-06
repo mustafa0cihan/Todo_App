@@ -1,10 +1,12 @@
 import TodoModel from '../models/TodoModel.js';
 import TodoView from '../views/TodoView.js';
+import TodoDetailView from '../views/TodoDetailView.js';
 
 class TodoController {
     constructor() {
         this.todoModel = new TodoModel();
         this.todoView = new TodoView();
+        this.todoDetailView = new TodoDetailView();
 
         document.addEventListener('todoCreated', (event) => {
             this.addNewTodo(event.detail);
@@ -16,6 +18,10 @@ class TodoController {
 
         document.addEventListener('updateTodo', (event) => {
             this.updateTodo(event.detail.updatedTodo, event.detail.index);
+        });
+
+        document.addEventListener('showCreateTodoForm', () => {
+            this.todoDetailView.showTodoForm();
         });
     }
 
@@ -34,7 +40,7 @@ class TodoController {
 
     editTodo(todo, index) {
         const editableTodo = { ...todo, index };
-        this.todoView.showEditForm(editableTodo);
+        this.todoDetailView.showEditForm(editableTodo);
     }
 
     updateTodo(updatedTodo, index) {
