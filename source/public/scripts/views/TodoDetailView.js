@@ -1,68 +1,140 @@
 class TodoDetailView {
     constructor() {
         this.app = document.getElementById('app');
+        this.editingTodoId = null;
     }
 
     showTodoForm() {
         this.app.innerHTML = `
             <form id="todo-form">
                 <label>Title:</label>
-                <input type="text" placeholder="Example">
+                <input type="text" id="title" placeholder="Example">
                 <label>Importance:</label>
-                <input type="number" min="1" max="5" placeholder="5">
+                <input type="number" id="importance" min="1" max="5" placeholder="5">
                 <label>Due Date:</label>
-                <input type="date">
+                <input type="date" id="due-date">
                 <label>Completed:</label>
-                <input type="checkbox">
+                <input type="checkbox" id="completed">
                 <label>Description:</label>
-                <textarea placeholder="Example Todo"></textarea>
-                <button type="submit">Create</button>
+                <textarea id="description" placeholder="Example Todo"></textarea>
+                <div id="form-buttons">
+                    <button type="submit" id="create-button">Create</button>
+                    <button type="button" id="create-overview-button">Create & Overview</button>
+                    <button type="button" id="overview-button">Overview</button>
+                </div>
+                <div id="message" style="display:none;"></div>
             </form>
         `;
 
-        document.getElementById('todo-form').addEventListener('submit', (event) => {
-            event.preventDefault();
-            this.handleFormSubmit();
-        });
+        this.setUpEventListeners();
     }
 
     showEditForm(todo) {
+        this.editingTodoId = todo.id;
         this.app.innerHTML = `
             <form id="todo-form">
                 <label>Title:</label>
-                <input type="text" value="${todo.title}">
+                <input type="text" id="title" value="${todo.title}">
                 <label>Importance:</label>
-                <input type="number" min="1" max="5" value="${todo.importance}">
+                <input type="number" id="importance" min="1" max="5" value="${todo.importance}">
                 <label>Due Date:</label>
-                <input type="date" value="${todo.dueDate}">
+                <input type="date" id="due-date" value="${todo.dueDate}">
                 <label>Completed:</label>
-                <input type="checkbox" ${todo.completed ? 'checked' : ''}>
+                <input type="checkbox" id="completed" ${todo.completed ? 'checked' : ''}>
                 <label>Description:</label>
-                <textarea>${todo.description}</textarea>
-                <button type="submit">Update</button>
+                <textarea id="description">${todo.description}</textarea>
+                <div id="form-buttons">
+                    <button type="submit" id="update-button">Update</button>
+                    <button type="button" id="update-overview-button">Update & Overview</button>
+                    <button type="button" id="overview-button">Overview</button>
+                </div>
+                <div id="message" style="display:none;"></div>
             </form>
         `;
 
-        document.getElementById('todo-form').addEventListener('submit', (event) => {
+        this.setUpEventListeners();
+    }
+
+    setUpEventListeners() {
+        const form = document.getElementById('todo-form');
+        const createButton = document.getElementById('create-button');
+        const updateButton = document.getElementById('update-button');
+        const createOverviewButton = document.getElementById('create-overview-button');
+        const updateOverviewButton = document.getElementById('update-overview-button');
+        const overviewButton = document.getElementById('overview-button');
+
+        form.addEventListener('submit', (event) => {
             event.preventDefault();
-            const updatedTodo = {
-                title: document.querySelector('input[type="text"]').value,
-                importance: document.querySelector('input[type="number"]').value,
-                dueDate: document.querySelector('input[type="date"]').value,
-                description: document.querySelector('textarea').value,
-                completed: document.querySelector('input[type="checkbox"]').checked
-            };
-            const updateEvent = new CustomEvent('updateTodo', { detail: { updatedTodo, index: todo.index } });
-            document.dispatchEvent(updateEvent);
+            if (this.editingTodoId !== null) {
+                this.handleUpdateFormSubmit(this.editingTodoId);
+            } else {
+                this.handleFormSubmit();
+            }
         });
+
+        if (createOverviewButton) {
+            createOverviewButton.addEventListener('click', () => {
+                if (this.validateForm()) {
+                    this.handleFormSubmit();
+                    this.navigateToOverview();
+                }
+            });
+        }
+
+        if (updateOverviewButton) {
+            updateOverviewButton.addEventListener('click', () => {
+                if (this.validateForm()) {
+                    this.handleUpdateFormSubmit(this.editingTodoId);
+                    this.navigateToOverview();
+                }
+            });
+        }
+
+        overviewButton.addEventListener('click', () => {
+            this.navigateToOverview();
+        });
+
+        form.addEventListener('input', () => {
+            this.enableButtonsIfValid();
+        });
+
+        this.enableButtonsIfValid();
+    }
+
+    validateForm() {
+        const title = document.getElementById('title').value.trim();
+        const importance = document.getElementById('importance').value.trim();
+        const dueDate = document.getElementById('due-date').value.trim();
+        const description = document.getElementById('description').value.trim();
+
+        return title && importance && dueDate && description;
+    }
+
+    enableButtonsIfValid() {
+        const createButton = document.getElementById('create-button');
+        const updateButton = document.getElementById('update-button');
+        const createOverviewButton = document.getElementById('create-overview-button');
+        const updateOverviewButton = document.getElementById('update-overview-button');
+
+        if (this.validateForm()) {
+            if (createButton) createButton.disabled = false;
+            if (updateButton) updateButton.disabled = false;
+            if (createOverviewButton) createOverviewButton.disabled = false;
+            if (updateOverviewButton) updateOverviewButton.disabled = false;
+        } else {
+            if (createButton) createButton.disabled = true;
+            if (updateButton) updateButton.disabled = true;
+            if (createOverviewButton) createOverviewButton.disabled = true;
+            if (updateOverviewButton) updateOverviewButton.disabled = true;
+        }
     }
 
     handleFormSubmit() {
-        const title = document.querySelector('input[type="text"]').value;
-        const importance = document.querySelector('input[type="number"]').value;
-        const dueDate = document.querySelector('input[type="date"]').value;
-        const description = document.querySelector('textarea').value;
-        const completed = document.querySelector('input[type="checkbox"]').checked;
+        const title = document.getElementById('title').value.trim();
+        const importance = document.getElementById('importance').value.trim();
+        const dueDate = document.getElementById('due-date').value.trim();
+        const description = document.getElementById('description').value.trim();
+        const completed = document.getElementById('completed').checked;
 
         const newTodo = {
             title,
@@ -74,6 +146,44 @@ class TodoDetailView {
 
         const event = new CustomEvent('todoCreated', { detail: newTodo });
         document.dispatchEvent(event);
+        this.showMessage('Todo created successfully!');
+        this.editingTodoId = newTodo.id;
+        this.showEditForm(newTodo);
+    }
+
+    handleUpdateFormSubmit(id) {
+        const title = document.getElementById('title').value.trim();
+        const importance = document.getElementById('importance').value.trim();
+        const dueDate = document.getElementById('due-date').value.trim();
+        const description = document.getElementById('description').value.trim();
+        const completed = document.getElementById('completed').checked;
+
+        const updatedTodo = {
+            title,
+            importance,
+            dueDate,
+            description,
+            completed
+        };
+
+        const event = new CustomEvent('updateTodo', { detail: { updatedTodo, id } });
+        document.dispatchEvent(event);
+
+        this.showMessage('Todo updated successfully!');
+    }
+
+    showMessage(message) {
+        const messageDiv = document.getElementById('message');
+        messageDiv.textContent = message;
+        messageDiv.style.display = 'block';
+        setTimeout(() => {
+            messageDiv.style.display = 'none';
+        }, 3000);
+    }
+
+    navigateToOverview() {
+        const overviewEvent = new CustomEvent('showOverview');
+        document.dispatchEvent(overviewEvent);
     }
 }
 

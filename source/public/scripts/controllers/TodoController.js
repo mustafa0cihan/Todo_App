@@ -17,11 +17,15 @@ class TodoController {
         });
 
         document.addEventListener('updateTodo', (event) => {
-            this.updateTodo(event.detail.updatedTodo, event.detail.index);
+            this.updateTodo(event.detail.updatedTodo, event.detail.id);
         });
 
         document.addEventListener('showCreateTodoForm', () => {
             this.todoDetailView.showTodoForm();
+        });
+
+        document.addEventListener('showOverview', () => {
+            this.showOverview();
         });
     }
 
@@ -32,10 +36,7 @@ class TodoController {
 
     addNewTodo(newTodo) {
         this.todoModel.addTodo(newTodo);
-        this.todoView.createMainPage(); 
-        this.todoView.createTodoList(this.todoModel.getTodos());
-
-        this.init(); 
+        this.todoDetailView.showEditForm(newTodo);
     }
 
     editTodo(todo, index) {
@@ -43,11 +44,13 @@ class TodoController {
         this.todoDetailView.showEditForm(editableTodo);
     }
 
-    updateTodo(updatedTodo, index) {
-        this.todoModel.todos[index] = updatedTodo;
+    updateTodo(updatedTodo, id) {
+        this.todoModel.updateTodoById(id, updatedTodo);
+    }
+
+    showOverview() {
         this.todoView.createMainPage();
         this.todoView.createTodoList(this.todoModel.getTodos());
-        this.init();
     }
 }
 
