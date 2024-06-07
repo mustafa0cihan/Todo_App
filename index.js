@@ -1,18 +1,20 @@
 import express from 'express';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import todoRoutes from './source/routes/todoRoutes.js';
 
 const app = express();
 const PORT = 3000;
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const filename = fileURLToPath(import.meta.url);
+const dirname = path.dirname(filename);
 
-app.use(express.static(path.join(__dirname, 'source', 'public')));
+// Middleware
+app.use(express.json());
+app.use(express.static(path.join(dirname, 'source', 'public')));
 
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'source', 'public', 'index.html'));
-});
+// Routes
+app.use('/api/todos', todoRoutes);
 
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
