@@ -1,11 +1,15 @@
-const API_URL = '/api/todos';
+const API_URL = 'http://localhost:3000/api/todos';
 
-export const getTodos = async () => {
+export async function getTodos() {
     const response = await fetch(API_URL);
-    return response.json();
-};
+    if (!response.ok) {
+        throw new Error('Failed to fetch todos');
+    }
+    const data = await response.json();
+    return data;
+}
 
-export const createTodo = async (todo) => {
+export async function createTodo(todo) {
     const response = await fetch(API_URL, {
         method: 'POST',
         headers: {
@@ -13,23 +17,33 @@ export const createTodo = async (todo) => {
         },
         body: JSON.stringify(todo)
     });
-    return response.json();
-};
+    if (!response.ok) {
+        throw new Error('Failed to create todo');
+    }
+    const data = await response.json();
+    return data;
+}
 
-export const updateTodo = async (id, todo) => {
+export async function updateTodo(id, updatedTodo) {
     const response = await fetch(`${API_URL}/${id}`, {
         method: 'PUT',
         headers: {
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify(todo)
+        body: JSON.stringify(updatedTodo)
     });
-    return response.json();
-};
+    if (!response.ok) {
+        throw new Error('Failed to update todo');
+    }
+    const data = await response.json();
+    return data;
+}
 
-export const deleteTodo = async (id) => {
+export async function deleteTodo(id) {
     const response = await fetch(`${API_URL}/${id}`, {
         method: 'DELETE'
     });
-    return response.json();
-};
+    if (!response.ok) {
+        throw new Error('Failed to delete todo');
+    }
+}

@@ -3,6 +3,8 @@ import express from 'express';
 import mongoose from 'mongoose';
 import todoRoutes from '../routes/todoRoutes.js';
 import { jest } from '@jest/globals';
+import { JSDOM } from 'jsdom';
+import TodoView from '../public/scripts/views/TodoView.js';
 
 const app = express();
 app.use(express.json());
@@ -13,6 +15,10 @@ beforeAll(async () => {
         useNewUrlParser: true,
         useUnifiedTopology: true
     });
+
+    const dom = new JSDOM('<!doctype html><html><body><div id="app"></div></body></html>');
+    global.document = dom.window.document;
+    global.window = dom.window;
 });
 
 beforeEach(async () => {
@@ -40,7 +46,7 @@ describe('Todo API', () => {
 
         expect(response.status).toBe(201);
         expect(response.body.title).toBe('Test Todo');
-        expect(response.body.creationDate).toBeDefined(); // Ensure creationDate is set
+        expect(response.body.creationDate).toBeDefined();
     });
 
     it('should get all todos', async () => {
@@ -255,5 +261,39 @@ describe('Todo API', () => {
         expect(sortedAndFilteredTodos.length).toBe(2);
         expect(sortedAndFilteredTodos[0].title).toBe('Not Completed Todo A');
         expect(sortedAndFilteredTodos[1].title).toBe('Not Completed Todo B');
+    });
+
+    it('should display formatted due dates correctly', async () => {
+        const newTodo = {
+            title: 'Test Todo',
+            importance: 3,
+            dueDate: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+            description: 'This is a test todo',
+            completed: false
+        };
+
+        await request(app).post('/api/todos').send(newTodo);
+
+        const response = await request(app).get('/api/todos');
+        const formattedDueDate = response.body[0].dueDate;
+
+        const todoView = new TodoView();
+        const now = new Date();
+        const date = new Date(formattedDueDate);
+        const diffTime = date - now;
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+        let expectedFormat;
+        if (diffDays <= 1) {
+            expectedFormat = 'in a day';
+        } else if (diffDays <= 3) {
+            expectedFormat = 'somedays';
+        } else if (diffDays <= 7) {
+            expectedFormat = 'in 7 days';
+        } else {
+            expectedFormat = 'more than 7 days';
+        }
+
+        expect(todoView.formatDueDate(formattedDueDate, false)).toBe(expectedFormat);
     });
 });
