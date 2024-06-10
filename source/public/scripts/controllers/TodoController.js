@@ -1,23 +1,24 @@
-import TodoModel from '../models/TodoModel.js';
+import * as todoService from '../services/todoService.js';
 import TodoView from '../views/TodoView.js';
 import TodoDetailView from '../views/TodoDetailView.js';
 
 class TodoController {
     constructor() {
-        this.todoModel = new TodoModel();
         this.todoView = new TodoView();
         this.todoDetailView = new TodoDetailView();
 
-        document.addEventListener('todoCreated', (event) => {
-            this.addNewTodo(event.detail);
+        document.addEventListener('todoCreated', async (event) => {
+            const newTodo = await todoService.createTodo(event.detail);
+            this.addNewTodoToView(newTodo);
         });
 
         document.addEventListener('editTodo', (event) => {
-            this.editTodo(event.detail.todo, event.detail.index);
+            this.editTodoInView(event.detail.todo, event.detail.index);
         });
 
-        document.addEventListener('updateTodo', (event) => {
-            this.updateTodo(event.detail.updatedTodo, event.detail.id);
+        document.addEventListener('updateTodo', async (event) => {
+            const updatedTodo = await todoService.updateTodo(event.detail.id, event.detail.updatedTodo);
+            this.updateTodoInView(updatedTodo);
         });
 
         document.addEventListener('showCreateTodoForm', () => {
@@ -27,30 +28,69 @@ class TodoController {
         document.addEventListener('showOverview', () => {
             this.showOverview();
         });
+
+        document.addEventListener('sortByName', () => {
+            this.sortTodosByName();
+        });
+
+        document.addEventListener('sortByDueDate', () => {
+            this.sortTodosByDueDate();
+        });
+
+        document.addEventListener('sortByCreationDate', () => {
+            this.sortTodosByCreationDate();
+        });
+
+        document.addEventListener('sortByImportance', () => {
+            this.sortTodosByImportance();
+        });
+
+        document.addEventListener('filterCompleted', () => {
+            this.filterCompletedTodos();
+        });
     }
 
-    init() {
+    async init() {
         this.todoView.createMainPage();
-        this.todoView.createTodoList(this.todoModel.getTodos());
+        const todos = await todoService.getTodos();
+        this.todoView.createTodoList(todos);
     }
 
-    addNewTodo(newTodo) {
-        this.todoModel.addTodo(newTodo);
-        this.todoDetailView.showEditForm(newTodo);
+    addNewTodoToView(newTodo) {
+        this.todoView.addTodoToList(newTodo);
     }
 
-    editTodo(todo, index) {
+    editTodoInView(todo, index) {
         const editableTodo = { ...todo, index };
         this.todoDetailView.showEditForm(editableTodo);
     }
 
-    updateTodo(updatedTodo, id) {
-        this.todoModel.updateTodoById(id, updatedTodo);
+    updateTodoInView(updatedTodo) {
+        this.todoView.updateTodoInList(updatedTodo);
     }
 
     showOverview() {
         this.todoView.createMainPage();
-        this.todoView.createTodoList(this.todoModel.getTodos());
+        this.init();
+    }
+
+    sortTodosByName() {
+       
+    }
+
+    sortTodosByDueDate() {
+        
+    }
+
+    sortTodosByCreationDate() {
+       
+    }
+
+    sortTodosByImportance() {
+        
+
+    filterCompletedTodos() {
+      
     }
 }
 

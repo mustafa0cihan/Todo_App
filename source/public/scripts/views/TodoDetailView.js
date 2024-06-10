@@ -1,7 +1,7 @@
 class TodoDetailView {
     constructor() {
         this.app = document.getElementById('app');
-        this.editingTodoId = null;
+        this.editingTodoId = null; // Düzenlenen Todo'nun ID'sini saklamak için
     }
 
     showTodoForm() {
@@ -30,7 +30,7 @@ class TodoDetailView {
     }
 
     showEditForm(todo) {
-        this.editingTodoId = todo.id;
+        this.editingTodoId = todo._id;
         this.app.innerHTML = `
             <form id="todo-form">
                 <label>Title:</label>
@@ -38,7 +38,7 @@ class TodoDetailView {
                 <label>Importance:</label>
                 <input type="number" id="importance" min="1" max="5" value="${todo.importance}">
                 <label>Due Date:</label>
-                <input type="date" id="due-date" value="${todo.dueDate}">
+                <input type="date" id="due-date" value="${this.formatDate(todo.dueDate)}">
                 <label>Completed:</label>
                 <input type="checkbox" id="completed" ${todo.completed ? 'checked' : ''}>
                 <label>Description:</label>
@@ -53,6 +53,14 @@ class TodoDetailView {
         `;
 
         this.setUpEventListeners();
+    }
+
+    formatDate(dateString) {
+        const date = new Date(dateString);
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
     }
 
     setUpEventListeners() {
@@ -147,8 +155,8 @@ class TodoDetailView {
         const event = new CustomEvent('todoCreated', { detail: newTodo });
         document.dispatchEvent(event);
         this.showMessage('Todo created successfully!');
-        this.editingTodoId = newTodo.id;
-        this.showEditForm(newTodo);
+        this.editingTodoId = newTodo.id; // Yeni ID'yi sakla
+        this.showEditForm(newTodo); // Düzenleme sayfasına yönlendir
     }
 
     handleUpdateFormSubmit(id) {
