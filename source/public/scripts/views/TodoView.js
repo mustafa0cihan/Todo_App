@@ -2,14 +2,17 @@ class TodoView {
     constructor() {
         this.app = document.getElementById('app');
         this.filterCompleted = false;
-        this.activeSortButton = null; 
-        this.todos = []; 
-        this.originalTodos = []; 
+        this.activeSortButton = null;
+        this.todos = [];
+        this.originalTodos = [];
+    }
 
     createMainPage() {
         this.app.innerHTML = `
-            <button id="create-todo-button">Create New Todo</button>
-            <button id="toggle-style-button">Toggle Style</button>
+            <div id="top-menu">
+                <button id="create-todo-button">Create New Todo</button>
+                <button id="toggle-style-button">Toggle Style</button>
+            </div>
             <div id="sort-filter-section">
                 <button id="by-name-button">By Name</button>
                 <button id="by-due-date-button">By Due Date</button>
@@ -86,10 +89,25 @@ class TodoView {
         todoListSection.innerHTML = `
             <ul>
                 ${todos.map(todo => `
-                    <li id="todo-${todo._id}">
-                        <button class="toggle-status-button" data-id="${todo._id}">${todo.completed ? 'Completed' : 'Not Completed'}</button>
-                        ${todo.title} - ${todo.description} - ${todo.importance} - ${this.formatDate(todo.dueDate)}
-                        <button class="edit-button" data-id="${todo._id}">Edit</button>
+                    <li id="todo-${todo._id}" class="todo-card ${todo.completed ? 'completed' : 'not-completed'}">
+                        <div class="due-date-status">
+                            <div class="due-date">${this.formatDueDate(todo.dueDate, todo.completed)}</div>
+                            <div class="status">
+                                <input type="checkbox" id="status-${todo._id}" ${todo.completed ? 'checked' : ''}>
+                                <span class="checkmark"></span>
+                                ${todo.completed ? 'Completed' : 'Open'}
+                            </div>
+                        </div>
+                        <div class="title-description">
+                            <div class="title">${todo.title}</div>
+                            <div class="description">${todo.description}</div>
+                        </div>
+                        <div class="importance-edit">
+                            <div class="importance">
+                                ${'★'.repeat(todo.importance)}
+                            </div>
+                            <button class="edit-button" data-id="${todo._id}">Edit</button>
+                        </div>
                     </li>
                 `).join('')}
             </ul>
@@ -104,11 +122,11 @@ class TodoView {
             });
         });
 
-        document.querySelectorAll('.toggle-status-button').forEach(button => {
-            button.addEventListener('click', (event) => {
-                const todoId = event.target.getAttribute('data-id');
+        document.querySelectorAll('.status input[type="checkbox"]').forEach(checkbox => {
+            checkbox.addEventListener('change', (event) => {
+                const todoId = event.target.id.split('-')[1];
                 const todo = todos.find(t => t._id === todoId);
-                todo.completed = !todo.completed;
+                todo.completed = event.target.checked;
                 const eventDetail = new CustomEvent('toggleTodoStatus', { detail: todo });
                 document.dispatchEvent(eventDetail);
             });
@@ -152,13 +170,35 @@ class TodoView {
         }
     }
 
-    formatDate(dateString) {
-        const date = new Date(dateString);
-        const year = date.getFullYear();
-        const month = String(date.getMonth() + 1).padStart(2, '0');
-        const day = String(date.getDate()).padStart(2, '0');
-        return `${month}/${day}/${year}`;
+    formatDueDate(dueDate, completed) {
+        const now = new Date();
+        const date = new Date(dueDate);
+        const diffTime = completed ? now - date : date - now;
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+        if (completed) {
+            if (diffDays <= 1) {
+                return 'a day ago';
+            } else if (diffDays <= 3) {
+                return 'somedays ago';
+            } else if (diffDays <= 7) {
+                return 'in 7 days ago';
+            } else {
+                return 'more than 7 days ago';
+            }
+        } else {
+            if (diffDays <= 1) {
+                return 'in a day';
+            } else if (diffDays <= 3) {
+                return 'somedays';
+            } else if (diffDays <= 7) {
+                return 'in 7 days';
+            } else {
+                return 'more than 7 days';
+            }
+        }
     }
 }
 
 export default TodoView;
+

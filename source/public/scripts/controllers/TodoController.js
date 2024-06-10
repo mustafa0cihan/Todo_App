@@ -71,7 +71,7 @@ class TodoController {
 
     addNewTodoToView(newTodo) {
         this.todos.push(newTodo);
-        this.todoView.addTodoToList(newTodo);
+        this.todoDetailView.showEditForm(newTodo);
     }
 
     editTodoInView(todo, index) {
@@ -83,13 +83,7 @@ class TodoController {
         const index = this.todos.findIndex(todo => todo._id === updatedTodo._id);
         if (index !== -1) {
             this.todos[index] = updatedTodo;
-            this.todoView.updateTodoInList(updatedTodo);
-            if (this.filterCompleted) {
-                this.filterCompletedTodos(this.filterCompleted);
-            }
-            if (this.activeSortButton) {
-                this.sortTodos();
-            }
+            this.showOverview();
         }
     }
 
@@ -147,3 +141,4 @@ class TodoController {
 }
 
 export default TodoController;
+

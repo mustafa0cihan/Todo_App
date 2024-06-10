@@ -1,197 +1,95 @@
 class TodoDetailView {
     constructor() {
         this.app = document.getElementById('app');
-        this.editingTodoId = null; // Düzenlenen Todo'nun ID'sini saklamak için
     }
 
     showTodoForm() {
         this.app.innerHTML = `
             <form id="todo-form">
-                <label>Title:</label>
-                <input type="text" id="title" placeholder="Example">
-                <label>Importance:</label>
-                <input type="number" id="importance" min="1" max="5" placeholder="5">
-                <label>Due Date:</label>
-                <input type="date" id="due-date">
-                <label>Completed:</label>
-                <input type="checkbox" id="completed">
-                <label>Description:</label>
-                <textarea id="description" placeholder="Example Todo"></textarea>
-                <div id="form-buttons">
+                <label>Title: <input type="text" id="title"></label>
+                <label>Importance: <input type="number" id="importance" min="1" max="5"></label>
+                <label>Due Date: <input type="date" id="due-date"></label>
+                <label class="inline-label">Completed: <input type="checkbox" id="completed"></label>
+                <label>Description: <textarea id="description"></textarea></label>
+                <div class="form-buttons">
                     <button type="submit" id="create-button">Create</button>
                     <button type="button" id="create-overview-button">Create & Overview</button>
                     <button type="button" id="overview-button">Overview</button>
                 </div>
-                <div id="message" style="display:none;"></div>
             </form>
         `;
 
-        this.setUpEventListeners();
+        document.getElementById('create-button').addEventListener('click', (event) => {
+            event.preventDefault();
+            const todo = this.getFormData();
+            const eventDetail = new CustomEvent('todoCreated', { detail: todo });
+            document.dispatchEvent(eventDetail);
+        });
+
+        document.getElementById('create-overview-button').addEventListener('click', (event) => {
+            event.preventDefault();
+            const todo = this.getFormData();
+            const eventDetail = new CustomEvent('todoCreated', { detail: todo });
+            document.dispatchEvent(eventDetail);
+            const overviewEvent = new CustomEvent('showOverview');
+            document.dispatchEvent(overviewEvent);
+        });
+
+        document.getElementById('overview-button').addEventListener('click', () => {
+            const overviewEvent = new CustomEvent('showOverview');
+            document.dispatchEvent(overviewEvent);
+        });
     }
 
     showEditForm(todo) {
-        this.editingTodoId = todo._id;
         this.app.innerHTML = `
-            <form id="todo-form">
-                <label>Title:</label>
-                <input type="text" id="title" value="${todo.title}">
-                <label>Importance:</label>
-                <input type="number" id="importance" min="1" max="5" value="${todo.importance}">
-                <label>Due Date:</label>
-                <input type="date" id="due-date" value="${this.formatDate(todo.dueDate)}">
-                <label>Completed:</label>
-                <input type="checkbox" id="completed" ${todo.completed ? 'checked' : ''}>
-                <label>Description:</label>
-                <textarea id="description">${todo.description}</textarea>
-                <div id="form-buttons">
+             <form id="todo-form">
+                <input type="hidden" id="todo-id" value="${todo._id}">
+                <label>Title: <input type="text" id="title" value="${todo.title}"></label>
+                <label>Importance: <input type="number" id="importance" value="${todo.importance}" min="1" max="5"></label>
+                <label>Due Date: <input type="date" id="due-date" value="${todo.dueDate.split('T')[0]}"></label>
+                <label class="inline-label">Completed: <input type="checkbox" id="completed" ${todo.completed ? 'checked' : ''}></label>
+                <label>Description: <textarea id="description">${todo.description}</textarea></label>
+                <div class="form-buttons">
                     <button type="submit" id="update-button">Update</button>
                     <button type="button" id="update-overview-button">Update & Overview</button>
                     <button type="button" id="overview-button">Overview</button>
                 </div>
-                <div id="message" style="display:none;"></div>
             </form>
         `;
 
-        this.setUpEventListeners();
-    }
-
-    formatDate(dateString) {
-        const date = new Date(dateString);
-        const year = date.getFullYear();
-        const month = String(date.getMonth() + 1).padStart(2, '0');
-        const day = String(date.getDate()).padStart(2, '0');
-        return `${year}-${month}-${day}`;
-    }
-
-    setUpEventListeners() {
-        const form = document.getElementById('todo-form');
-        const createButton = document.getElementById('create-button');
-        const updateButton = document.getElementById('update-button');
-        const createOverviewButton = document.getElementById('create-overview-button');
-        const updateOverviewButton = document.getElementById('update-overview-button');
-        const overviewButton = document.getElementById('overview-button');
-
-        form.addEventListener('submit', (event) => {
+        document.getElementById('update-button').addEventListener('click', (event) => {
             event.preventDefault();
-            if (this.editingTodoId !== null) {
-                this.handleUpdateFormSubmit(this.editingTodoId);
-            } else {
-                this.handleFormSubmit();
-            }
+            const updatedTodo = this.getFormData();
+            const id = document.getElementById('todo-id').value;
+            const eventDetail = new CustomEvent('updateTodo', { detail: { id, updatedTodo } });
+            document.dispatchEvent(eventDetail);
         });
 
-        if (createOverviewButton) {
-            createOverviewButton.addEventListener('click', () => {
-                if (this.validateForm()) {
-                    this.handleFormSubmit();
-                    this.navigateToOverview();
-                }
-            });
-        }
-
-        if (updateOverviewButton) {
-            updateOverviewButton.addEventListener('click', () => {
-                if (this.validateForm()) {
-                    this.handleUpdateFormSubmit(this.editingTodoId);
-                    this.navigateToOverview();
-                }
-            });
-        }
-
-        overviewButton.addEventListener('click', () => {
-            this.navigateToOverview();
+        document.getElementById('update-overview-button').addEventListener('click', (event) => {
+            event.preventDefault();
+            const updatedTodo = this.getFormData();
+            const id = document.getElementById('todo-id').value;
+            const eventDetail = new CustomEvent('updateTodo', { detail: { id, updatedTodo } });
+            document.dispatchEvent(eventDetail);
+            const overviewEvent = new CustomEvent('showOverview');
+            document.dispatchEvent(overviewEvent);
         });
 
-        form.addEventListener('input', () => {
-            this.enableButtonsIfValid();
+        document.getElementById('overview-button').addEventListener('click', () => {
+            const overviewEvent = new CustomEvent('showOverview');
+            document.dispatchEvent(overviewEvent);
         });
-
-        this.enableButtonsIfValid();
     }
 
-    validateForm() {
-        const title = document.getElementById('title').value.trim();
-        const importance = document.getElementById('importance').value.trim();
-        const dueDate = document.getElementById('due-date').value.trim();
-        const description = document.getElementById('description').value.trim();
-
-        return title && importance && dueDate && description;
-    }
-
-    enableButtonsIfValid() {
-        const createButton = document.getElementById('create-button');
-        const updateButton = document.getElementById('update-button');
-        const createOverviewButton = document.getElementById('create-overview-button');
-        const updateOverviewButton = document.getElementById('update-overview-button');
-
-        if (this.validateForm()) {
-            if (createButton) createButton.disabled = false;
-            if (updateButton) updateButton.disabled = false;
-            if (createOverviewButton) createOverviewButton.disabled = false;
-            if (updateOverviewButton) updateOverviewButton.disabled = false;
-        } else {
-            if (createButton) createButton.disabled = true;
-            if (updateButton) updateButton.disabled = true;
-            if (createOverviewButton) createOverviewButton.disabled = true;
-            if (updateOverviewButton) updateOverviewButton.disabled = true;
-        }
-    }
-
-    handleFormSubmit() {
-        const title = document.getElementById('title').value.trim();
-        const importance = document.getElementById('importance').value.trim();
-        const dueDate = document.getElementById('due-date').value.trim();
-        const description = document.getElementById('description').value.trim();
+    getFormData() {
+        const title = document.getElementById('title').value;
+        const importance = document.getElementById('importance').value;
+        const dueDate = document.getElementById('due-date').value;
         const completed = document.getElementById('completed').checked;
+        const description = document.getElementById('description').value;
 
-        const newTodo = {
-            title,
-            importance,
-            dueDate,
-            description,
-            completed
-        };
-
-        const event = new CustomEvent('todoCreated', { detail: newTodo });
-        document.dispatchEvent(event);
-        this.showMessage('Todo created successfully!');
-        this.editingTodoId = newTodo.id; // Yeni ID'yi sakla
-        this.showEditForm(newTodo); // Düzenleme sayfasına yönlendir
-    }
-
-    handleUpdateFormSubmit(id) {
-        const title = document.getElementById('title').value.trim();
-        const importance = document.getElementById('importance').value.trim();
-        const dueDate = document.getElementById('due-date').value.trim();
-        const description = document.getElementById('description').value.trim();
-        const completed = document.getElementById('completed').checked;
-
-        const updatedTodo = {
-            title,
-            importance,
-            dueDate,
-            description,
-            completed
-        };
-
-        const event = new CustomEvent('updateTodo', { detail: { updatedTodo, id } });
-        document.dispatchEvent(event);
-
-        this.showMessage('Todo updated successfully!');
-    }
-
-    showMessage(message) {
-        const messageDiv = document.getElementById('message');
-        messageDiv.textContent = message;
-        messageDiv.style.display = 'block';
-        setTimeout(() => {
-            messageDiv.style.display = 'none';
-        }, 3000);
-    }
-
-    navigateToOverview() {
-        const overviewEvent = new CustomEvent('showOverview');
-        document.dispatchEvent(overviewEvent);
+        return { title, importance, dueDate, completed, description };
     }
 }
 
