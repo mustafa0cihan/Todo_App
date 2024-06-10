@@ -1,14 +1,13 @@
-let currentId = 0;
+import mongoose from 'mongoose';
 
-class Todo {
-    constructor({ title, importance, dueDate, description, completed }) {
-        this.id = currentId++;
-        this.title = title;
-        this.importance = importance;
-        this.dueDate = dueDate;
-        this.description = description;
-        this.completed = completed;
-    }
-}
+const todoSchema = new mongoose.Schema({
+    title: { type: String, required: true },
+    importance: { type: Number, required: true },
+    dueDate: { type: Date, required: true },
+    description: { type: String, required: true },
+    completed: { type: Boolean, default: false }
+});
+
+const Todo = mongoose.model('Todo', todoSchema);
 
 export default Todo;

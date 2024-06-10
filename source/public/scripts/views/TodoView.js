@@ -17,14 +17,44 @@ class TodoView {
             <div id="todo-list-section"></div>
         `;
 
-        this.app.addEventListener('click', (event) => {
-            if (event.target.id === 'create-todo-button') {
-                const createEvent = new CustomEvent('showCreateTodoForm');
-                document.dispatchEvent(createEvent);
-            } else if (event.target.id === 'toggle-style-button') {
-                document.body.classList.toggle('dark-mode');
-            }
+        // Butonlara event listener ekleyin
+        document.getElementById('create-todo-button').addEventListener('click', () => {
+            const event = new CustomEvent('showCreateTodoForm');
+            document.dispatchEvent(event);
         });
+
+        document.getElementById('toggle-style-button').addEventListener('click', () => {
+            this.toggleStyle();
+        });
+
+        document.getElementById('by-name-button').addEventListener('click', () => {
+            const event = new CustomEvent('sortByName');
+            document.dispatchEvent(event);
+        });
+
+        document.getElementById('by-due-date-button').addEventListener('click', () => {
+            const event = new CustomEvent('sortByDueDate');
+            document.dispatchEvent(event);
+        });
+
+        document.getElementById('by-creation-date-button').addEventListener('click', () => {
+            const event = new CustomEvent('sortByCreationDate');
+            document.dispatchEvent(event);
+        });
+
+        document.getElementById('importance-button').addEventListener('click', () => {
+            const event = new CustomEvent('sortByImportance');
+            document.dispatchEvent(event);
+        });
+
+        document.getElementById('filter-completed-button').addEventListener('click', () => {
+            const event = new CustomEvent('filterCompleted');
+            document.dispatchEvent(event);
+        });
+    }
+
+    toggleStyle() {
+        document.body.classList.toggle('dark-mode');
     }
 
     createTodoList(todos) {
@@ -34,30 +64,74 @@ class TodoView {
             return;
         }
 
-        todoListSection.innerHTML = '';
         if (todos.length === 0) {
-            todoListSection.textContent = 'No Todos Found';
+            todoListSection.innerHTML = 'No Todos Found';
             return;
         }
 
-        const ul = document.createElement('ul');
-        todos.forEach((todo, index) => {
-            const li = document.createElement('li');
-            li.innerHTML = `
-                ${todo.title} - ${todo.description} - ${todo.importance} - ${todo.dueDate} - ${todo.completed ? 'Completed' : 'Not Completed'}
-                <button class="edit-button" data-index="${index}">Edit</button>
-            `;
+        todoListSection.innerHTML = `
+            <ul>
+                ${todos.map(todo => `
+                    <li id="todo-${todo._id}">
+                        ${todo.title} - ${todo.description} - ${todo.importance} - ${todo.dueDate} - ${todo.completed ? 'Completed' : 'Not Completed'}
+                        <button class="edit-button" data-id="${todo._id}">Edit</button>
+                    </li>
+                `).join('')}
+            </ul>
+        `;
 
-            ul.appendChild(li);
-        });
-        todoListSection.appendChild(ul);
-
-        todoListSection.addEventListener('click', (event) => {
-            if (event.target.classList.contains('edit-button')) {
-                const index = event.target.getAttribute('data-index');
-                const eventDetail = new CustomEvent('editTodo', { detail: { todo: todos[index], index: parseInt(index, 10) } });
+        document.querySelectorAll('.edit-button').forEach(button => {
+            button.addEventListener('click', (event) => {
+                const todoId = event.target.getAttribute('data-id');
+                const todo = todos.find(t => t._id === todoId);
+                const eventDetail = new CustomEvent('editTodo', { detail: { todo, index: todo._id } });
                 document.dispatchEvent(eventDetail);
-            }
+            });
+        });
+    }
+
+    addTodoToList(todo) {
+        const todoListSection = document.getElementById('todo-list-section');
+        if (!todoListSection) {
+            console.error('Todo list section not found');
+            return;
+        }
+
+        const ul = todoListSection.querySelector('ul');
+        if (!ul) {
+            this.createTodoList([todo]);
+            return;
+        }
+
+        const li = document.createElement('li');
+        li.innerHTML = `
+            ${todo.title} - ${todo.description} - ${todo.importance} - ${todo.dueDate} - ${todo.completed ? 'Completed' : 'Not Completed'}
+            <button class="edit-button" data-id="${todo._id}">Edit</button>
+        `;
+
+        ul.appendChild(li);
+
+        li.querySelector('.edit-button').addEventListener('click', (event) => {
+            const eventDetail = new CustomEvent('editTodo', { detail: { todo, index: todo._id } });
+            document.dispatchEvent(eventDetail);
+        });
+    }
+
+    updateTodoInList(updatedTodo) {
+        const todoElement = document.getElementById(`todo-${updatedTodo._id}`);
+        if (!todoElement) {
+            console.error('Todo element not found');
+            return;
+        }
+
+        todoElement.innerHTML = `
+            ${updatedTodo.title} - ${updatedTodo.description} - ${updatedTodo.importance} - ${updatedTodo.dueDate} - ${updatedTodo.completed ? 'Completed' : 'Not Completed'}
+            <button class="edit-button" data-id="${updatedTodo._id}">Edit</button>
+        `;
+
+        todoElement.querySelector('.edit-button').addEventListener('click', (event) => {
+            const eventDetail = new CustomEvent('editTodo', { detail: { todo: updatedTodo, index: updatedTodo._id } });
+            document.dispatchEvent(eventDetail);
         });
     }
 }
