@@ -167,7 +167,6 @@ button:disabled {
     color: #555;
 }
 
-/* Todo Form */
 form {
     display: flex;
     flex-direction: column;
@@ -177,6 +176,7 @@ form {
 
 form label {
     margin: 10px 0 5px;
+    position: relative;
 }
 
 form input,
@@ -186,6 +186,24 @@ form textarea {
     border-radius: 5px;
     margin-bottom: 10px;
     width: calc(100% - 20px);
+}
+
+form input.error,
+form textarea.error {
+    border-color: red;
+}
+
+.error-message {
+    color: red;
+    font-size: 0.7em;
+    position: absolute;
+    left: 5px;
+    display: none;
+}
+
+form input.error + .error-message,
+form textarea.error + .error-message {
+    display: block;
 }
 
 form label.inline-label {
