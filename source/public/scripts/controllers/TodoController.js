@@ -71,7 +71,7 @@ class TodoController {
 
     addNewTodoToView(newTodo) {
         this.todos.push(newTodo);
-        this.todoDetailView.showEditForm(newTodo);
+        this.showOverview();
     }
 
     editTodoInView(todo, index) {
