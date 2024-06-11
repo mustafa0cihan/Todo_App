@@ -98,9 +98,25 @@ class TodoDetailView {
                         input.classList.remove('error');
                         document.getElementById(`${input.id}-error`).textContent = '';
                     }
+
+                    if (input.id === 'importance') {
+                        this.validateImportance();
+                    }
                 });
             }
         });
+    }
+
+    validateImportance() {
+        const importanceInput = document.getElementById('importance');
+        const importanceValue = parseInt(importanceInput.value, 10);
+        if (importanceValue < 1 || importanceValue > 5) {
+            importanceInput.classList.add('error');
+            document.getElementById('importance-error').textContent = 'Importance must be a value between 1 and 5.';
+        } else {
+            importanceInput.classList.remove('error');
+            document.getElementById('importance-error').textContent = '';
+        }
     }
 
     validateForm() {
