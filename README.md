@@ -6,7 +6,6 @@
 Dies ist eine Todo-Anwendung, die mit Node.js, Express.js und Vanilla JavaScript entwickelt wurde. Es verfügt über eine intuitive Benutzeroberfläche und grundlegende Funktionen zum Hinzufügen und Bearbeiten von Aufgaben. Das Projekt verwendet das MVC (Model-View-Controller) Muster, um eine klare Trennung zwischen Datenmodell, Benutzeroberfläche und Anwendungslogik zu gewährleisten.
 
 ## Funktionen
-----------
 
 *   **Aufgabenverwaltung**: Aufgaben hinzufügen, bearbeiten, löschen.
     
@@ -14,8 +13,8 @@ Dies ist eine Todo-Anwendung, die mit Node.js, Express.js und Vanilla JavaScript
     
 *   **Benutzerauthentifizierung**: Sicheres Einloggen und Registrieren (noch zu implementieren).
 
-## Verwendete Technologien
------------------------
+## Verwendete Technologie
+
 *   **Frontend**: HTML, CSS, JS
 
 *   **Backend**: Node.js, Express
