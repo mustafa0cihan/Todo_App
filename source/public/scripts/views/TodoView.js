@@ -170,31 +170,67 @@ class TodoView {
         }
     }
 
-    formatDueDate(dueDate, completed) {
+    formatDueDate(dueDate, completed, completionDate = null) {
         const now = new Date();
         const date = new Date(dueDate);
-        const diffTime = completed ? now - date : date - now;
-        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
+    
+        // Tarihlerin sadece yıl, ay ve gün bileşenlerini karşılaştırmak için sıfırlama
+        const clearTime = (date) => new Date(date.getFullYear(), date.getMonth(), date.getDate());
+    
+        const clearNow = clearTime(now);
+        const clearDate = clearTime(date);
+    
+        const completion = completionDate ? clearTime(new Date(completionDate)) : clearNow;
+    
+        const dueDiffTime = clearDate - clearNow;
+        const dueDiffDays = Math.ceil(Math.abs(dueDiffTime) / (1000 * 60 * 60 * 24));
+    
+        const completionDiffTime = completion - clearDate;
+        const completionDaysAgo = Math.ceil(Math.abs(completionDiffTime) / (1000 * 60 * 60 * 24));
+    
         if (completed) {
-            if (diffDays <= 1) {
-                return 'a day ago';
-            } else if (diffDays <= 3) {
-                return 'somedays ago';
-            } else if (diffDays <= 7) {
-                return 'in 7 days ago';
-            } else {
-                return 'more than 7 days ago';
+            if (completionDiffTime > 0) { // Geç tamamlanmış
+                if (completionDaysAgo === 1) {
+                    return 'completed a day ago';
+                } else if (completionDaysAgo <= 3) {
+                    return 'completed a few days ago';
+                } else if (completionDaysAgo <= 7) {
+                    return 'completed a week ago';
+                } else {
+                    return 'completed more than a week ago';
+                }
+            } else if (completionDiffTime === 0) { // Bugün tamamlanmış
+                return 'completed today';
+            } else { // Erken tamamlanmış
+                if (completionDaysAgo === 1) {
+                    return 'completed a day early';
+                } else {
+                    return `completed ${completionDaysAgo} days early`;
+                }
             }
         } else {
-            if (diffDays <= 1) {
-                return 'in a day';
-            } else if (diffDays <= 3) {
-                return 'somedays';
-            } else if (diffDays <= 7) {
-                return 'in 7 days';
-            } else {
-                return 'more than 7 days';
+            if (dueDiffTime > 0) { // Gelecekte due date
+                if (dueDiffDays === 1) {
+                    return 'due in a day';
+                } else if (dueDiffDays <= 3) {
+                    return 'due in a few days';
+                } else if (dueDiffDays <= 7) {
+                    return 'due in a week';
+                } else {
+                    return 'due in more than a week';
+                }
+            } else if (dueDiffTime === 0) { // Bugün due date
+                return 'due today';
+            } else { // Geçmiş due date
+                if (completionDaysAgo === 1) {
+                    return 'was due a day ago';
+                } else if (completionDaysAgo <= 3) {
+                    return 'was due a few days ago';
+                } else if (completionDaysAgo <= 7) {
+                    return 'was due a week ago';
+                } else {
+                    return 'was due more than a week ago';
+                }
             }
         }
     }
